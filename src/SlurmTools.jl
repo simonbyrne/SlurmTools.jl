@@ -38,8 +38,7 @@ end
 """
     sacct([options])
 
-Gets accounting data for all jobs and job steps, returning a DataFrame. Any additional
-keyword arguments are passed to `CSV.read`.
+Gets accounting data for all jobs and job steps, returning a DataFrame.
 
 Do not use any options that change the formatting of the output of `sacct`
 (e.g. `--parsable`, `--helpformat`, etc).
@@ -63,10 +62,11 @@ julia> sacct(["--format=JobID,Start,End", "--allocations"])
 # External links
 - [`sacct` man page](https://slurm.schedmd.com/sacct.html)
 """
-function sacct(options=[])    
-    sacct_cmd = `sacct --parsable2 $options`
+function sacct(options=[])
+    delim = '\t'
+    sacct_cmd = `sacct --parsable2 --delimiter=$delim $options`
     CSV.read(sacct_cmd;
-             delim='|', type=String, types=DEFAULT_TYPES, missingstrings=["","Unknown"])
+             delim=delim, type=String, types=DEFAULT_TYPES, missingstrings=["","Unknown"])
 end
 
 # TODO: add more types here
