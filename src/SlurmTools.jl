@@ -23,14 +23,8 @@ julia> sbatch(`job.sh arg1`, ["--time=01:00:00", "--nprocs=4"])
 - [`sbatch` man page](https://slurm.schedmd.com/sbatch.html)
 """
 function sbatch(cmd, options=[])        
-    sbatch_cmd = `sbatch $options $cmd`
-    result_str = String(read(sbatch_cmd))
-    m = match(r"Submitted batch job ([0-9]*)\n", result_str)
-    if m === nothing
-        error("sbatch: $result_str")
-    else
-        return m.captures[1]
-    end
+    sbatch_cmd = `sbatch --parsable $options $cmd`
+    return chomp(String(read(sbatch_cmd)))
 end
 
 
