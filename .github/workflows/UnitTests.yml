@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      SLURM: "19.05.0"
+      SLURM: "latest"
 
     steps:
     - name: Checkout
@@ -31,11 +31,14 @@ jobs:
         arch: ${{ matrix.julia_arch }}
         version: ${{ matrix.julia_version }}
 
-    - run: |
+    - name: Start Slurm Docker image
+      run: |
         docker pull giovtorres/docker-centos7-slurm:$SLURM
         docker run -d -it -h ernie -v $(pwd):/SlurmTools -v $(julia -e 'print(dirname(Sys.BINDIR))'):/julia --name slurm-$SLURM giovtorres/docker-centos7-slurm:$SLURM
 
-    - run: docker exec slurm-$SLURM /julia/bin/julia --project=/SlurmTools -e 'using Pkg; Pkg.instantiate(verbose=true); Pkg.build(verbose=true)'
+    - name: Instantiate package
+      run: docker exec slurm-$SLURM /julia/bin/julia --project=/SlurmTools -e 'using Pkg; Pkg.instantiate(verbose=true); Pkg.build(verbose=true)'
 
-    - run: docker exec slurm-$SLURM /julia/bin/julia --project=/SlurmTools -e 'using Pkg; Pkg.test()'
+    - name: Run tests
+      run: docker exec slurm-$SLURM /julia/bin/julia --project=/SlurmTools -e 'using Pkg; Pkg.test()'
 
