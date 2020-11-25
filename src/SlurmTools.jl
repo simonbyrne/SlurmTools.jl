@@ -59,7 +59,7 @@ julia> sacct(["--format=JobID,Start,End", "--allocations"])
 function sacct(options=[])
     delim = '\t'
     sacct_cmd = `sacct --parsable2 --delimiter=$delim $options`
-    CSV.read(sacct_cmd;
+    CSV.read(sacct_cmd, DataFrame;
              delim=delim, type=String, types=DEFAULT_TYPES, missingstrings=["","Unknown"])
 end
 
